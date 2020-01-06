@@ -1,0 +1,55 @@
+---
+- hosts: all
+  become: yes
+  environment:
+    DB_HOST: "mongodb://192.168.10.150:27017/posts"
+  tasks:
+    - name: update and upgrade ubuntu
+      apt:
+        update_cache: yes
+        upgrade: yes
+    - name: ensure nginx is at latest version
+      apt: name=nginx state=latest
+    - name: start nginx
+      service:
+          name: nginx
+          state: started
+    - name: install python-software-properties
+      apt: name=python-software-properties state=latest
+    - name: get nodejs GPG key
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+    - name: get nodejs repo
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_6.x xenial main"
+        state: present
+    - name: install nodejs
+      apt: name=nodejs state=latest force=yes
+    - name: install packages
+      npm:
+        path: /home/ubuntu/synced_files/app
+    - name: install pm2
+      npm: name=pm2 global=yes
+    - name: proxy remove default
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+    - name: link proxy sites available
+      file:
+        src: /home/ubuntu/app/reverse-proxy.conf
+        dest: /etc/nginx/sites-available/reverse-proxy.conf
+        state: link
+    - name: link proxy sites enabled
+      file:
+        src: /etc/nginx/sites-available/reverse-proxy.conf
+        dest: /etc/nginx/sites-enabled/reverse-proxy.conf
+        state: link
+    - name: restart nginx with proxy
+      service:
+        name: nginx
+        state: restarted
+    - name: seed application
+      shell: chdir=/home/ubuntu/app cmd= sudo node seeds/seed.js
+    - name: application running
+      shell: chdir=/home/ubuntu/app cmd= node app.js

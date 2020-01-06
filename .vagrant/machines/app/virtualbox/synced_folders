@@ -1,0 +1,1 @@
+{"virtualbox":{"/home/ubuntu/app":{"guestpath":"/home/ubuntu/app","hostpath":"C:/Users/Thomas Briggs/Engineering47/week7/Day1/app","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/Users/Thomas Briggs/Engineering47/week7/Day1","disabled":false,"__vagrantfile":true}}}
